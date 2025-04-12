@@ -1,0 +1,119 @@
+body {
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+/* Basic Navbar Styling */
+#navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+#navbar li {
+  float: left;
+}
+
+#navbar li a, #navbar #nav-title {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+#navbar li a:hover:not(.disabled) { /* Only hover effect if not disabled */
+  background-color: #111;
+}
+
+#navbar #nav-title {
+  font-weight: bold;
+}
+
+/* Class to disable navbar links visually and functionally */
+.nav-link.disabled {
+  color: #666; /* Grey out text */
+  cursor: not-allowed; /* Show 'not allowed' cursor */
+  pointer-events: none; /* Disable click events */
+}
+
+
+/* Connect button area */
+#connection-area {
+    padding: 5px 10px; /* Adjust padding */
+}
+#connection-area button {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+#connection-status-short {
+    color: #ccc;
+    font-size: 0.9em;
+}
+
+
+/* Container for main content */
+.container {
+    padding: 20px;
+    max-width: 960px; /* Limit width */
+    margin: 20px auto; /* Center the container */
+}
+
+/* Hide app sections by default */
+.app-section {
+  display: none;
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+/* Styling for form elements (optional) */
+label {
+    display: inline-block;
+    margin-bottom: 5px;
+    min-width: 120px; /* Align labels */
+}
+input[type=text], input[type=number] {
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+/* ... other styles ... */
+
+button[type=submit], #fetchGroupDetailsButton { /* Updated ID */
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-left: 5px; /* Add some space next to input */
+}
+button[type=submit]:hover, #fetchGroupDetailsButton:hover { /* Updated ID */
+  background-color: #0056b3;
+}
+
+/* ... other styles ... */
+
+#groups-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+#groups-list li {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+#groups-list li:last-child {
+    border-bottom: none;
+}

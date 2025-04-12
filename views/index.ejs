@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SplitPay DApp</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+    <nav id="navbar">
+        <ul>
+            <li><a href="#" id="nav-title">SplitPay</a></li>
+            <!-- Functionality links - initially hidden/disabled -->
+            <li><a href="#" id="nav-create-group" class="nav-link disabled">Create Group</a></li>
+            <li><a href="#" id="nav-add-expense" class="nav-link disabled">Add Expense</a></li>
+            <li><a href="#" id="nav-view-groups" class="nav-link disabled">View Groups</a></li>
+            <li style="float:right"> <!-- Move connect button to the right -->
+                 <div id="connection-area">
+                    <button id="connectButton">Connect Wallet</button>
+                    <span id="connection-status-short" style="margin-left: 10px;"></span> <!-- Minimal status -->
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container"> <!-- Add a container for centering/padding -->
+        <header>
+            <h1>Welcome to SplitPay</h1>
+            <p>Connect your Sepolia wallet to manage shared expenses.</p>
+            <!-- Add Ethereum price display -->
+            <div id="eth-price-display" style="margin: 20px 0; padding: 10px; background-color: #f8f9fa; border-radius: 5px; text-align: center;">
+                <p style="margin: 0; font-size: 1.1em;">
+                    <span id="eth-price-label">Ethereum Price:</span>
+                    <span id="eth-price-usd">Loading...</span>
+                    <span id="eth-price-update-time" style="font-size: 0.8em; color: #666; margin-left: 10px;"></span>
+                </p>
+            </div>
+        </header>
+
+        <!-- Detailed Connection Status (Optional, can be simplified) -->
+        <div id="connection-details" style="margin-top: 20px; background-color: #f0f0f0; padding: 10px; border-radius: 5px; display: none;">
+            <h4>Connection Details</h4>
+             <p>Status: <span id="status">Not Connected</span></p>
+            <p>Account: <span id="account">N/A</span></p>
+            <p>Chain ID: <span id="chainId">N/A</span></p>
+            <p>Token Address:
+                <span id="tokenAddressSpan">
+                    <a id="tokenAddressLink" href="#" target="_blank" rel="noopener noreferrer">Loading...</a>
+                </span>
+            </p>
+            <p>Contract Address:
+                <span id="contractAddressSpan">
+                    <a id="contractAddressLink" href="#" target="_blank" rel="noopener noreferrer">Loading...</a>
+                </span>
+            </p>
+        </div>
+
+        <hr style="margin-top: 30px;">
+
+        <!-- Main Application Content Area - Hidden until connected -->
+        <main id="app-content" style="display: none;">
+
+            <!-- Section for Creating Groups -->
+            <section id="create-group-section" class="app-section" style="display: none;">
+                <h2>Create New Group</h2>
+                <form id="createGroupForm">
+                    <label for="groupMembers">Member Addresses (comma-separated):</label><br>
+                    <input type="text" id="groupMembers" name="groupMembers" placeholder="0xAddress1, 0xAddress2..." required size="60"><br><br>
+                    <button type="submit">Create Group</button>
+                </form>
+                <div id="create-group-result"></div>
+            </section>
+
+            <!-- Section for Adding Expenses -->
+            <section id="add-expense-section" class="app-section" style="display: none;">
+                <h2>Add Expense</h2>
+                <form id="addExpenseForm">
+                    <label for="expenseGroupId">Group ID:</label>
+                    <input type="number" id="expenseGroupId" name="expenseGroupId" required><br><br>
+
+                    <label for="expenseDescription">Description:</label>
+                    <input type="text" id="expenseDescription" name="expenseDescription" required><br><br>
+
+                    <label for="expenseAmount">Total Amount (SPT):</label> <!-- User enters friendly amount -->
+                    <input type="number" step="any" id="expenseAmount" name="expenseAmount" required><br><br> <!-- step=any for decimals -->
+
+                    <label for="expensePayer">Payer Address:</label>
+                    <input type="text" id="expensePayer" name="expensePayer" required size="50"><br><br>
+
+                    <label for="expenseParticipants">Participant Addresses (comma-separated):</label><br>
+                    <input type="text" id="expenseParticipants" name="expenseParticipants" placeholder="0xAddress1, 0xAddress2..." required size="60"><br><br>
+
+                    <button type="submit">Add Expense</button>
+                </form>
+                 <div id="add-expense-result"></div>
+            </section>
+
+            <!-- Section for Viewing Groups - UPDATED -->
+            <section id="view-groups-section" class="app-section" style="display: none;">
+                <h2>Your Groups & Balances</h2>
+
+                <!-- Input for specific Group ID -->
+                <label for="viewGroupIdInput">Enter Group ID to View:</label>
+                <input type="number" id="viewGroupIdInput" name="viewGroupIdInput" placeholder="Enter Group ID">
+
+                <!-- Button to trigger fetch for the entered ID -->
+                <button id="fetchGroupDetailsButton">View Group Details</button>
+
+                <!-- Area to display results -->
+                <div id="groups-list" style="margin-top: 15px;">
+                    <p>Enter a Group ID and click "View Group Details".</p>
+                </div>
+            </section>
+            <!-- End of Updated Section -->
+
+             <!-- Section for Settling Debts -->
+             <section id="settle-debt-section" class="app-section" style="display: none;">
+                 <h2>Settle Debt</h2>
+                 <form id="settleDebtForm">
+                     <label for="settleGroupId">Group ID:</label>
+                    <input type="number" id="settleGroupId" name="settleGroupId" required><br><br>
+
+                    <label for="settleCreditor">Creditor Address (Who you owe):</label>
+                    <input type="text" id="settleCreditor" name="settleCreditor" required size="50"><br><br>
+
+                    <label for="settleAmount">Amount to Settle (SPT):</label> <!-- User enters friendly amount -->
+                    <input type="number" step="any" id="settleAmount" name="settleAmount" required><br><br>
+
+                    <button type="submit">1. Approve & 2. Settle</button>
+                    <p><small>This requires two transactions: one to approve the token spending, and one to settle.</small></p>
+                 </form>
+                 <div id="settle-debt-result"></div>
+            </section>
+
+
+        </main> <!-- End of app-content -->
+
+    </div> <!-- End of container -->
+
+
+    <!-- Include Web3.js library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <!-- Include your custom app logic -->
+    <script src="/javascripts/app.js"></script>
+
+</body>
+</html>
