@@ -95,18 +95,25 @@
 
             <!-- Section for Viewing Groups - UPDATED -->
             <section id="view-groups-section" class="app-section" style="display: none;">
-                <h2>Your Groups & Balances</h2>
-
-                <!-- Input for specific Group ID -->
-                <label for="viewGroupIdInput">Enter Group ID to View:</label>
-                <input type="number" id="viewGroupIdInput" name="viewGroupIdInput" placeholder="Enter Group ID">
-
-                <!-- Button to trigger fetch for the entered ID -->
-                <button id="fetchGroupDetailsButton">View Group Details</button>
-
-                <!-- Area to display results -->
+                <h2>View Groups</h2>
+                <div class="form-group">
+                    <label for="viewGroupIdInput">Group ID:</label>
+                    <input type="text" id="viewGroupIdInput" class="form-control" placeholder="Enter Group ID">
+                </div>
+                <button id="fetchGroupDetailsButton" class="btn btn-primary">View Group Details</button>
+                
                 <div id="groups-list" style="margin-top: 15px;">
+                    <!-- Group details will be loaded here -->
                     <p>Enter a Group ID and click "View Group Details".</p>
+                </div>
+
+                <!-- Settlement History Section -->
+                <div id="settlement-history" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px; display: none;">
+                    <h4>Settlement History for Group <span id="history-group-id"></span></h4>
+                    <ul id="history-list">
+                        <!-- History items will be loaded here -->
+                        <li>Loading history...</li>
+                    </ul>
                 </div>
             </section>
             <!-- End of Updated Section -->

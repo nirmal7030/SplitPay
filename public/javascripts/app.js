@@ -40,6 +40,11 @@ const fetchGroupDetailsButton = document.getElementById('fetchGroupDetailsButton
 const ethPriceUsdSpan = document.getElementById('eth-price-usd');
 const ethPriceUpdateTimeSpan = document.getElementById('eth-price-update-time');
 
+// Add new DOM references for settlement history
+const settlementHistoryDiv = document.getElementById('settlement-history');
+const historyGroupIdSpan = document.getElementById('history-group-id');
+const historyListUl = document.getElementById('history-list');
+
 // --- Initialization ---
 window.addEventListener('load', async () => {
     // Set link href and text for token and contract addresses
@@ -602,6 +607,11 @@ function fetchAndDisplayGroupDetails() {
 
 async function fetchGroupDetailsById(groupIdToFetch) {
     const groupsListDiv = document.getElementById('groups-list');
+    // Ensure history section is reset/hidden initially when fetching new group
+    if (settlementHistoryDiv) settlementHistoryDiv.style.display = 'none';
+    if (historyListUl) historyListUl.innerHTML = '<li>Loading history...</li>';
+    if (historyGroupIdSpan) historyGroupIdSpan.textContent = groupIdToFetch;
+
     groupsListDiv.innerHTML = `<p>Fetching details for Group ID: ${groupIdToFetch}...</p>`;
 
     if (!splitterContractInstance || !userAccount) {
@@ -610,8 +620,8 @@ async function fetchGroupDetailsById(groupIdToFetch) {
     }
 
     try {
+        // --- Fetch Members and Balances (Existing Logic) ---
         const members = await splitterContractInstance.methods.getGroupMembers(groupIdToFetch).call();
-
         if (!members || members.length === 0) {
             groupsListDiv.innerHTML = `<p>Group ID ${groupIdToFetch} not found or has no members.</p>`;
             return;
@@ -624,18 +634,55 @@ async function fetchGroupDetailsById(groupIdToFetch) {
             const balanceSign = BigInt(balanceWei) >= 0 ? '+' : '';
             return `<li>${member}: ${balanceSign}${balanceSPT} SPT</li>`;
         });
-
         const balanceItems = await Promise.all(balancePromises);
         groupHtml += balanceItems.join('');
         groupHtml += '</ul>';
-
         groupHtml += `<button class="settle-button" onclick="showSettleForm(${groupIdToFetch})">Settle Debts in Group ${groupIdToFetch}</button>`;
-
         groupsListDiv.innerHTML = groupHtml;
+
+        // *** ADD FETCHING SETTLEMENT HISTORY ***
+        if (settlementHistoryDiv) settlementHistoryDiv.style.display = 'block'; // Show history section
+        console.log(`Fetching DebtSettled events for group ${groupIdToFetch}`);
+
+        try {
+            // Query past events
+            const pastEvents = await splitterContractInstance.getPastEvents('DebtSettled', {
+                filter: { groupId: groupIdToFetch },
+                fromBlock: 0,
+                toBlock: 'latest'
+            });
+
+            console.log(`Found ${pastEvents.length} DebtSettled events.`);
+
+            if (historyListUl) {
+                if (pastEvents.length === 0) {
+                    historyListUl.innerHTML = '<li>No settlement history found for this group.</li>';
+                } else {
+                    historyListUl.innerHTML = ''; // Clear loading message
+                    // Sort events by block number (descending = newest first)
+                    pastEvents.sort((a, b) => b.blockNumber - a.blockNumber);
+
+                    for (const event of pastEvents) {
+                        const values = event.returnValues;
+                        const amountSPT = web3.utils.fromWei(values.amount, 'ether');
+                        const txLink = `https://sepolia.etherscan.io/tx/${event.transactionHash}`;
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `Block ${event.blockNumber}: ${values.debtor} paid ${amountSPT} SPT to ${values.creditor}. <a href="${txLink}" target="_blank" rel="noopener noreferrer">(Tx)</a>`;
+                        historyListUl.appendChild(listItem);
+                    }
+                }
+            }
+        } catch (eventError) {
+            console.error("Error fetching past events:", eventError);
+            if (historyListUl) historyListUl.innerHTML = `<li>Error loading history: ${eventError.message}</li>`;
+        }
+        // *** END OF FETCHING HISTORY ***
 
     } catch (error) {
         console.error(`Error fetching details for group ${groupIdToFetch}:`, error);
         groupsListDiv.innerHTML = `<p>Error fetching details for group ${groupIdToFetch}: ${error.message}</p>`;
+        // Hide history section on error
+        if (settlementHistoryDiv) settlementHistoryDiv.style.display = 'none';
     }
 }
 
